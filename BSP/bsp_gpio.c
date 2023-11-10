@@ -6,82 +6,11 @@ GPIO_InitTypeDef sa;
 
 typedef struct
 {
- GPIO_TypeDef *ptGpiox;
- uint32_t GPIO_Pin;             
- GPIOSpeed_TypeDef GPIO_Speed;  
- GPIOOType_TypeDef GPIO_OType;   
- GPIOPuPd_TypeDef GPIO_PuPd;
-}GPIO_Output_Port_t;
-
-typedef struct
-{
     GPIO_TypeDef *ptGpiox;
-    uint32_t u32GpioPin;
-    uint32_t u32Pull;
-} GPIO_Input_Port_t;
-
-
-//输出GPIO初始化结构体，可配置表
-static GPIO_Output_Port_t ptGpioOutputPortTable[] =
-{
-    {.ptGpiox = GPIOH, .GPIO_Pin = GPIO_Pin_10, .GPIO_Speed = GPIO_Speed_2MHz, .GPIO_OType = GPIO_OType_PP,.GPIO_PuPd = GPIO_PuPd_UP },     //LED_GRID_Pin
-};
-
-
-
-/***********************************************************************************************************************
- 功能：GPIO使能时钟
-************************************************************************************************************************/
-static void GPIO_EnablePeriphClockCmd(void)
-{
-       RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-       RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-       RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-       RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-       RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
-       RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
-       RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
-       RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
-}
-
-/***********************************************************************************************************************
- 功能：配置GPIO初始化
-************************************************************************************************************************/
-void GPIO_Config(void)
-{
-    uint8_t i;
-    GPIO_InitTypeDef GPIO_InitOutputStruct = {0};
-    GPIO_InitTypeDef GPIO_InitIntputStruct = {0};
-    // 初始化时钟
-    GPIO_EnablePeriphClockCmd();
-    // 复位GPIO初始化状态
-    // 预留
-}
-
-
-
-
-#if 0
-
-/***********************************************************************************************************************
-* Copyright (c)  , CVTE
-* ***********************************************************************************************************************
-* 文件名     : gpio_driver.c
-* 用途       :
-************************************************************************************************************************/
-
-#include "gpio_driver.h"
-
-/***********************************************************************************************************************
-Global variables and funtions
-************************************************************************************************************************/
-
-typedef struct
-{
-    GPIO_TypeDef *ptGpiox;
-    uint32_t u32GpioPin;
-    uint32_t u32OutputType;
-    uint32_t u32Pull;
+    uint32_t GPIO_Pin;
+    GPIOSpeed_TypeDef GPIO_Speed;
+    GPIOOType_TypeDef GPIO_OType;
+    GPIOPuPd_TypeDef GPIO_PuPd;
 } GPIO_Output_Port_t;
 
 typedef struct
@@ -89,9 +18,91 @@ typedef struct
     GPIO_TypeDef *ptGpiox;
     uint32_t u32GpioPin;
     uint32_t u32Pull;
-} GPIO_Input_Port_t;
+} GPIO_Input_Port_t; 
 
-//输出GPIO初始化结构体，可配置表
+ typedef struct
+{
+    GPIO_TypeDef *ptGpiox;
+    uint32_t GPIO_Pin;
+    GPIOSpeed_TypeDef GPIO_Speed;
+    GPIOOType_TypeDef GPIO_OType;
+    GPIOPuPd_TypeDef GPIO_PuPd;
+} GPIO_AF_Port_t;
+
+// 输出GPIO初始化结构体，可配置结构体
+static GPIO_Output_Port_t ptGpioOutputPortTable[] =
+{
+    {.ptGpiox = GPIOH, .GPIO_Pin = GPIO_Pin_10, .GPIO_Speed = GPIO_Speed_2MHz, .GPIO_OType = GPIO_OType_PP, .GPIO_PuPd = GPIO_PuPd_UP}, // LED_GRID_Pin
+};
+
+// 复用GPIO初始化，可配置结构体
+static GPIO_Output_Port_t ptGpioAFPortTable[] =
+{
+    {.ptGpiox = GPIOA, .GPIO_Pin = GPIO_Pin_8, .GPIO_Speed = GPIO_Speed_100MHz, .GPIO_OType = GPIO_OType_PP, .GPIO_PuPd = GPIO_PuPd_UP}, // LED_GRID_Pin
+    {.ptGpiox = GPIOA, .GPIO_Pin = GPIO_Pin_9, .GPIO_Speed = GPIO_Speed_100MHz, .GPIO_OType = GPIO_OType_PP, .GPIO_PuPd = GPIO_PuPd_UP}, // LED_GRID_Pin
+
+};
+
+#define  GPIO_OUTPUT_PORT_NUMBER       (sizeof(ptGpioOutputPortTable) / sizeof(GPIO_Output_Port_t))
+#define  GPIO_AF_PORT_NUMBER           (sizeof(ptGpioAFPortTable) / sizeof(GPIO_Output_Port_t))
+
+/***********************************************************************************************************************
+ 功能：GPIO使能时钟
+************************************************************************************************************************/
+static void GPIO_EnablePeriphClockCmd(void)
+{
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
+}
+
+/***********************************************************************************************************************
+ 功能：配置GPIO初始化配置
+************************************************************************************************************************/
+void GPIO_Config(void)
+{
+    uint8_t i;
+    GPIO_InitTypeDef GPIO_InitOutputStruct = {0};
+    GPIO_InitTypeDef GPIO_InitIntputStruct = {0};
+    GPIO_InitTypeDef GPIO_InitAFStruct = {0};
+
+    // 初始化时钟
+    GPIO_EnablePeriphClockCmd();
+    // 复位GPIO初始化状态
+    // 预留
+    
+    // 输出初始化
+    for(i = 0; i < GPIO_OUTPUT_PORT_NUMBER; i++)
+    {
+        GPIO_InitOutputStruct.GPIO_Mode = GPIO_Mode_OUT;
+        GPIO_InitOutputStruct.GPIO_OType = ptGpioOutputPortTable[i].GPIO_OType ;
+        GPIO_InitOutputStruct.GPIO_PuPd = ptGpioOutputPortTable[i].GPIO_PuPd;
+        GPIO_InitOutputStruct.GPIO_Speed = ptGpioOutputPortTable[i].GPIO_Speed;
+        GPIO_InitOutputStruct.GPIO_Pin = ptGpioOutputPortTable[i].GPIO_Pin;
+        GPIO_Init(ptGpioOutputPortTable[i].ptGpiox, &GPIO_InitOutputStruct);
+    }
+    // 复用引脚初始化
+    for(i = 0; i < GPIO_AF_PORT_NUMBER; i++)
+    {
+        GPIO_InitAFStruct.GPIO_Mode = GPIO_Mode_AF;
+        GPIO_InitAFStruct.GPIO_OType = ptGpioAFPortTable[i].GPIO_OType ;
+        GPIO_InitAFStruct.GPIO_PuPd = ptGpioAFPortTable[i].GPIO_PuPd;
+        GPIO_InitAFStruct.GPIO_Speed = ptGpioAFPortTable[i].GPIO_Speed;
+        GPIO_InitAFStruct.GPIO_Pin = ptGpioAFPortTable[i].GPIO_Pin;
+        GPIO_Init(ptGpioAFPortTable[i].ptGpiox, &GPIO_InitAFStruct);
+    }
+}
+
+#if 0
+
+/***********************************************************************************************************************
+* Copyright (c)  , CVTE
+
 static GPIO_Output_Port_t ptGpioOutputPortTable[] =
 {
     {.ptGpiox = PR_GPIOF, .u32GpioPin = PR_GPIO_PIN_13, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //LED_GRID_Pin
@@ -116,33 +127,10 @@ static GPIO_Output_Port_t ptGpioOutputPortTable[] =
     {.ptGpiox = PR_GPIOD, .u32GpioPin = PR_GPIO_PIN_14, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //LCD_D6_Pin
     {.ptGpiox = PR_GPIOD, .u32GpioPin = PR_GPIO_PIN_15, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //LCD_D7_Pin
     {.ptGpiox = PR_GPIOA, .u32GpioPin = PR_GPIO_PIN_10, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //LCD_RS_Pin
-    {.ptGpiox = PR_GPIOA, .u32GpioPin = PR_GPIO_PIN_11, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //LCD_RW_Pin
-    {.ptGpiox = PR_GPIOA, .u32GpioPin = PR_GPIO_PIN_12, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //LCD_E_Pin
-    {.ptGpiox = PR_GPIOA, .u32GpioPin = PR_GPIO_PIN_15, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_UP},     //LCD_RST_Pin
-    {.ptGpiox = PR_GPIOC, .u32GpioPin = PR_GPIO_PIN_9,  .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //LCD_LEDK_Pin
-    
-    {.ptGpiox = PR_GPIOD, .u32GpioPin = PR_GPIO_PIN_0,  .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //DRY_RLY1_Pin
-    {.ptGpiox = PR_GPIOD, .u32GpioPin = PR_GPIO_PIN_1,  .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //DRY_RLY2_Pin
-    
-    {.ptGpiox = PR_GPIOD, .u32GpioPin = PR_GPIO_PIN_4,  .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //BMS_TEN_Pin
-    {.ptGpiox = PR_GPIOE, .u32GpioPin = PR_GPIO_PIN_3,  .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //METER_TEN_Pin
-    {.ptGpiox = PR_GPIOE, .u32GpioPin = PR_GPIO_PIN_4,  .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //PCS_TEN_Pin
-    {.ptGpiox = PR_GPIOE, .u32GpioPin = PR_GPIO_PIN_2,  .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //WIFI/GPRS_TEN_Pin
-    {.ptGpiox = PR_GPIOE, .u32GpioPin = PR_GPIO_PIN_7,  .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //AFCI_TEN_Pin
 
-    {.ptGpiox = PR_GPIOB, .u32GpioPin = PR_GPIO_PIN_3, .u32OutputType = LL_GPIO_OUTPUT_OPENDRAIN,  .u32Pull = LL_GPIO_PULL_UP},     //I2C_SCL
-    {.ptGpiox = PR_GPIOB, .u32GpioPin = PR_GPIO_PIN_4, .u32OutputType = LL_GPIO_OUTPUT_OPENDRAIN,  .u32Pull = LL_GPIO_PULL_UP},     //I2C_SDA
-#if DEV_GD25QXX_NSS_HARD_MODE
-
-#else
-    {.ptGpiox = PR_GPIOE, .u32GpioPin = PR_GPIO_PIN_12, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_UP},     //SPI_NSS
-#endif
-
-//    {.ptGpiox = PR_GPIOE, .u32GpioPin = PR_GPIO_PIN_13, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //SPI_CLK
-//    {.ptGpiox = PR_GPIOE, .u32GpioPin = PR_GPIO_PIN_15, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL,  .u32Pull = PR_GPIO_PULL_NO},     //SPI_MOSI
 };
 
-//输入GPIO初始化结构体，可配置表
+//输入GPIO初始化结构体，可配置�?
 static GPIO_Input_Port_t ptGpioInputPortTable[] =
 {
     {.ptGpiox = PR_GPIOB, .u32GpioPin = PR_GPIO_PIN_15, .u32Pull = PR_GPIO_PULL_NO},    //KEY_UP_Pin
@@ -153,7 +141,7 @@ static GPIO_Input_Port_t ptGpioInputPortTable[] =
 //    {.ptGpiox = PR_GPIOE, .u32GpioPin = PR_GPIO_PIN_14, .u32Pull = PR_GPIO_PULL_NO},     //SPI_MISO
 };
 
-//模拟GPIO初始化结构体，可配置表
+//模拟GPIO初始化结构体，可配置�?
 static GPIO_Input_Port_t ptGpioAnalogPortTable[] =
 {
     {.ptGpiox = PR_GPIOA, .u32GpioPin = PR_GPIO_PIN_0,  .u32Pull = PR_GPIO_PULL_NO},    //ADC1_IN0      DRM0
@@ -166,7 +154,7 @@ static GPIO_Input_Port_t ptGpioAnalogPortTable[] =
     {.ptGpiox = PR_GPIOA, .u32GpioPin = PR_GPIO_PIN_7,  .u32Pull = PR_GPIO_PULL_NO},    //ADC1_IN7      DCDC_IGBT.T
 };
 
-//未使用GPIO初始化结构体，可配置表
+//未使用GPIO初始化结构体，可配置�?
 static GPIO_Output_Port_t ptGpioUnusedPortTable[] =
 {
     {.ptGpiox = PR_GPIOB, .u32GpioPin = PR_GPIO_PIN_0,  .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL, .u32Pull = PR_GPIO_PULL_DOWN},    
@@ -177,7 +165,7 @@ static GPIO_Output_Port_t ptGpioUnusedPortTable[] =
     {.ptGpiox = PR_GPIOC, .u32GpioPin = PR_GPIO_PIN_0,  .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL, .u32Pull = PR_GPIO_PULL_DOWN},    
     {.ptGpiox = PR_GPIOC, .u32GpioPin = PR_GPIO_PIN_1,  .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL, .u32Pull = PR_GPIO_PULL_DOWN},   
     {.ptGpiox = PR_GPIOC, .u32GpioPin = PR_GPIO_PIN_12, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL, .u32Pull = PR_GPIO_PULL_DOWN}, 
-    {.ptGpiox = PR_GPIOC, .u32GpioPin = PR_GPIO_PIN_13, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL, .u32Pull = PR_GPIO_PULL_DOWN}, 
+    {.ptGpiox = PR_GPIOC, .u32GpioPin = PR_GPIO_PIN_13, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL, .u32Pull = PR_GPIO_PULL_DOWN},
 #if (HARDWARE_VERSION == VERSION_B)
     {.ptGpiox = PR_GPIOF, .u32GpioPin = PR_GPIO_PIN_11, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL, .u32Pull = PR_GPIO_PULL_DOWN},
     {.ptGpiox = PR_GPIOF, .u32GpioPin = PR_GPIO_PIN_10, .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL, .u32Pull = PR_GPIO_PULL_DOWN},
@@ -197,13 +185,13 @@ static GPIO_Output_Port_t ptGpioUnusedPortTable[] =
     {.ptGpiox = PR_GPIOD, .u32GpioPin = PR_GPIO_PIN_2,  .u32OutputType = PR_GPIO_OUTPUT_PUSHPULL, .u32Pull = PR_GPIO_PULL_DOWN},    
 };
 
-#define GPIO_OUTPUT_PORT_NUMBER     (sizeof(ptGpioOutputPortTable) / sizeof(GPIO_Output_Port_t))
-#define GPIO_INPUT_PORT_NUMBER      (sizeof(ptGpioInputPortTable) / sizeof(GPIO_Input_Port_t))
-#define GPIO_ANALOG_PORT_NUMBER     (sizeof(ptGpioAnalogPortTable) / sizeof(GPIO_Input_Port_t))
-#define GPIO_UNUSED_PORT_NUMBER     (sizeof(ptGpioUnusedPortTable) / sizeof(GPIO_Output_Port_t))
+#define GPIO_OUTPUT_PORT_NUMBER (sizeof(ptGpioOutputPortTable) / sizeof(GPIO_Output_Port_t))
+#define GPIO_INPUT_PORT_NUMBER (sizeof(ptGpioInputPortTable) / sizeof(GPIO_Input_Port_t))
+#define GPIO_ANALOG_PORT_NUMBER (sizeof(ptGpioAnalogPortTable) / sizeof(GPIO_Input_Port_t))
+#define GPIO_UNUSED_PORT_NUMBER (sizeof(ptGpioUnusedPortTable) / sizeof(GPIO_Output_Port_t))
     
 /***********************************************************************************************************************
- 功能：设置GPIO模式为输出/输入/复用/模拟
+ 功能：设置GPIO模式为输�?/输入/复用/模拟
 ************************************************************************************************************************/
 void GPIO_Driver_SetPinMode(GPIO_TypeDef *ptGPIOx, uint32_t u32GpioPin, uint32_t u32Mode)
 {
@@ -211,7 +199,7 @@ void GPIO_Driver_SetPinMode(GPIO_TypeDef *ptGPIOx, uint32_t u32GpioPin, uint32_t
 }
 
 /***********************************************************************************************************************
- 功能：写GPIO的输出端口值
+ 功能：写GPIO的输出端口�?
 ************************************************************************************************************************/
 void GPIO_Driver_WriteOutputPin(GPIO_TypeDef *ptGPIOx, uint32_t u32GpioPin, uint32_t u32Value)
 {
@@ -226,7 +214,7 @@ void GPIO_Driver_WriteOutputPin(GPIO_TypeDef *ptGPIOx, uint32_t u32GpioPin, uint
 }
 
 /***********************************************************************************************************************
- 功能：读GPIO的输出端口值
+ 功能：读GPIO的输出端口�?
 ************************************************************************************************************************/
 uint32_t GPIO_Driver_ReadOutputPin(GPIO_TypeDef *ptGPIOx, uint32_t u32GpioPin)
 {
@@ -234,7 +222,7 @@ uint32_t GPIO_Driver_ReadOutputPin(GPIO_TypeDef *ptGPIOx, uint32_t u32GpioPin)
 }
 
 /***********************************************************************************************************************
- 功能：翻转GPIO的输出端口值
+ 功能：翻转GPIO的输出端口�?
 ************************************************************************************************************************/
 void GPIO_Driver_ToggleOutputPin(GPIO_TypeDef *ptGPIOx, uint32_t u32GpioPin)
 {
@@ -242,7 +230,7 @@ void GPIO_Driver_ToggleOutputPin(GPIO_TypeDef *ptGPIOx, uint32_t u32GpioPin)
 }
 
 /***********************************************************************************************************************
- 功能：读GPIO的输入端口值
+ 功能：读GPIO的输入端口�?
 ************************************************************************************************************************/
 uint32_t GPIO_Driver_ReadInputPin(GPIO_TypeDef *ptGPIOx, uint32_t u32GpioPin)
 {
@@ -263,7 +251,7 @@ static void GPIO_EnablePeriphClockCmd(void)
 }
 
 /***********************************************************************************************************************
- 功能：配置GPIO初始化
+ 功能：配置GPIO初始�?
 ************************************************************************************************************************/
 void GPIO_Driver_Initial(void)
 {
@@ -274,7 +262,7 @@ void GPIO_Driver_Initial(void)
     //初始化GPIO时钟
     GPIO_EnablePeriphClockCmd();
 
-    //复位GPIO输出状态
+    //复位GPIO输出状�?
     
     //预留
     

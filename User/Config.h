@@ -8,12 +8,12 @@
 #define LED1_GPIO_PORT GPIOH
 #define LED1_GPIO_CLK RCC_AHB1Periph_GPIOH7
 
-//G 绿色灯
+//G 绿色�?
 #define LED2_PIN GPIO_Pin_11
 #define LED2_GPIO_PORT GPIOH
 #define LED2_GPIO_CLK RCC_AHB1Periph_GPIOH
 
-//B 蓝色灯
+//B 蓝色�?
 #define LED3_PIN GPIO_Pin_12
 #define LED3_GPIO_PORT GPIOH
 #define LED3_GPIO_CLK RCC_AHB1Periph_GPIOH

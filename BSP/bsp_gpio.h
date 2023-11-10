@@ -14,6 +14,7 @@
 #include "stm32f4xx.h"
 
 
+void GPIO_Config(void);
 
 #ifdef __cplusplus
  }

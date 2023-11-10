@@ -10,8 +10,9 @@
 
 
 // Inc file -------------------------------------------------------------------
-
-
+#include "bsp_gpio.h"
+#include "bsp_clock.h"
+void Bsp_Init(void);
 
 
 #ifdef __cplusplus
